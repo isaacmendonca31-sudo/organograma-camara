@@ -1,0 +1,549 @@
+/*
+ * Estilos compartilhados (desktop e mobile): página, busca, legenda, cards e conectores.
+ *
+ * Organização do arquivo (procure pelas seções):
+ *   1. Tokens (variáveis)      4. Busca
+ *   2. Base da página          5. Legenda
+ *   3. Barra superior          6. Diagrama: palco, conectores e cards
+ *                              7. Tipos de card (só cores)
+ *
+ * ---------------------------------------------------------------------------
+ * PALETA ACESSÍVEL - regras que o teste `tests/cores_test.py` verifica sozinho
+ * ---------------------------------------------------------------------------
+ * 1. Hierarquia por LUMINOSIDADE: quanto mais importante o nível, mais escuro e
+ *    cheio é o card (instituição, órgão, gabinete, diretoria, nessa ordem; L* 12,
+ *    31, 42 e 48, o que também vale em escala de cinza). Os níveis
+ *    operacionais são tons claros com uma cor forte na borda. Luminosidade é
+ *    a única informação que todos os tipos de visão (inclusive daltonismo e
+ *    escala de cinza) percebem do mesmo jeito.
+ * 2. Contraste (WCAG 2.2): texto >= 4,5:1 (AA); bordas e linhas >= 3:1 (1.4.11).
+ * 3. Diferenciação por DALTONISMO: as cores foram escolhidas por busca numérica
+ *    para ficarem a pelo menos 10 de distância (CIEDE2000) entre si sob visão
+ *    normal, protanopia, deuteranopia e tritanopia. Evita-se verde x vermelho
+ *    com a mesma luminosidade (a confusão clássica).
+ * 4. TODOS os cards têm o MESMO formato (tamanho, cantos, borda, fonte): o tipo
+ *    se distingue só pela cor, por escolha de padronização visual. Por isso a cor
+ *    não fica sozinha: o NOME DO TIPO vem escrito em todo card (WCAG 1.4.1) e a
+ *    paleta é separada numericamente para as 4 visões (regra 3).
+ *
+ * Para trocar uma cor: altere o valor aqui e rode `python3 tests/cores_test.py`;
+ * ele aponta qual regra de acessibilidade deixou de valer.
+ *
+ * Os ajustes que dependem da tela ficam em desktop.css e mobile.css; aqui usamos
+ * o seletor `.modo-mobile` (classe do <body>) só quando o ajuste é de um
+ * componente novo que esses dois arquivos não cobrem.
+ */
+
+/* ---------- 0. Fonte ---------- */
+/* "Creato Display" é a fonte de TODO o conteúdo. Este projeto não inclui os arquivos
+   (a licença é de quem os obtém); duas formas de ativá-la:
+     a) instalar a fonte no computador: o `local()` abaixo a encontra sozinho;
+     b) copiar os arquivos .woff2 para a pasta fonts/ e trocar a linha `src` de cada peso pela versão comentada (com `url()`).
+   Só os pesos 400, 500 e 700 são usados em todo o site (menos arquivos para baixar).
+   `font-display: swap` mostra o texto na fonte do sistema e troca quando a fonte chega;
+   o núcleo remede os cards nessa troca (evento `loadingdone` de document.fonts). */
+@font-face {
+  font-family: "Creato Display";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: local("Creato Display"), local("CreatoDisplay-Regular"), local("Creato Display Regular");
+  /* src: local("Creato Display"), local("CreatoDisplay-Regular"), url("../fonts/CreatoDisplay-Regular.woff2") format("woff2"); */
+}
+
+@font-face {
+  font-family: "Creato Display";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: local("Creato Display Medium"), local("CreatoDisplay-Medium");
+  /* src: local("Creato Display Medium"), local("CreatoDisplay-Medium"), url("../fonts/CreatoDisplay-Medium.woff2") format("woff2"); */
+}
+
+@font-face {
+  font-family: "Creato Display";
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: local("Creato Display Bold"), local("CreatoDisplay-Bold");
+  /* src: local("Creato Display Bold"), local("CreatoDisplay-Bold"), url("../fonts/CreatoDisplay-Bold.woff2") format("woff2"); */
+}
+
+/* ---------- 1. Tokens ---------- */
+/* Cores de interface, fontes e medidas repetidas ficam aqui. As cores de cada
+   TIPO de card ficam na seção 7 (o formato é o mesmo para todos, na seção 6). */
+:root {
+  --papel: #f5f7fb;             /* fundo da página */
+  --tinta: #1a1f36;             /* texto principal (contraste 15:1 sobre o papel) */
+  --tinta-suave: #444b66;       /* texto secundário (contraste 8:1) */
+  --divisor: #c8cfe3;           /* filetes decorativos */
+  --linha: #78829a;             /* conectores (contraste 3,6:1) */
+  --destaque: #b0430c;          /* cadeia de comando em foco: terracota, contraste 5,4:1 */
+  --acento: #2a53dc;            /* botões, links e seleção (contraste 5,8:1) */
+  --acento-escuro: #0e1a4f;     /* título e hover do botão principal */
+  --hover: #e3e9f8;             /* fundo de itens interativos ao passar o mouse */
+  --foco: #5b2bc4;              /* anel de foco: violeta, contraste 7,6:1, não usado em nenhum card */
+  --campo-borda: #6b7388;       /* borda do campo de busca (contraste 4,7:1 sobre branco) */
+  --placeholder: #565e78;       /* texto de exemplo do campo (contraste 6,4:1 sobre branco) */
+  --erro-fundo: #fbeaea;
+  --erro-texto: #5c1111;
+  --erro-borda: #b44a4a;
+  /* UMA família sem serifa para todo o conteúdo (padronização). Se "Creato Display"
+     não estiver disponível (ver @font-face acima), cai para a fonte sem serifa do sistema. */
+  --fonte-texto: "Creato Display", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --fonte-titulo: var(--fonte-texto);
+  /* Variáveis redefinidas por desktop.css / mobile.css conforme a tela: */
+  --card-fs: 13px;
+  --card-pad: 10px 12px;
+  --barra-altura: 64px;
+}
+
+/* ---------- 2. Base da página ---------- */
+
+/* border-box: largura/altura incluem borda e padding; evita contas ao dimensionar. */
+* { box-sizing: border-box; }
+
+html {
+  /* Reserva o espaço da barra de rolagem: a largura do diagrama não muda quando ela aparece. */
+  scrollbar-gutter: stable;
+  background: var(--papel);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fonte-texto);
+  line-height: 1.4;
+  /* Impede o iOS de ampliar o texto sozinho ao girar a tela. */
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Esconde da vista mas mantém para leitores de tela (anúncios aria-live e rótulos). */
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Mensagem exibida no lugar do diagrama quando os dados são inválidos (ver validarArvore). */
+.erro-dados {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--erro-borda);
+  border-left-width: 6px;
+  border-radius: 8px;
+  background: var(--erro-fundo);
+  color: var(--erro-texto);
+  font-size: 0.9375rem;
+}
+
+/* ---------- 3. Barra superior ---------- */
+
+.barra {
+  /* Sticky: título e botões ficam sempre à mão enquanto se navega num diagrama longo. */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  min-height: var(--barra-altura);
+  background: var(--papel);
+  border-bottom: 1px solid var(--divisor);
+}
+
+.barra h1 {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--acento-escuro);
+}
+
+.barra p {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: var(--tinta-suave);
+}
+
+.barra-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Vale para <button> e <a>: o link de trocar de versão tem a mesma aparência dos botões. */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--acento);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--acento);
+  font: 700 0.875rem/1 var(--fonte-texto);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.botao:hover { background: var(--hover); }
+.botao-principal { background: var(--acento); border-color: var(--acento); color: #fff; }
+.botao-principal:hover { background: var(--acento-escuro); border-color: var(--acento-escuro); }
+
+/* Foco visível padronizado (só aparece em navegação por teclado, graças a :focus-visible).
+   Violeta: contraste alto com o papel e cor que nenhum card usa, para nunca se confundir com um tipo. */
+.botao:focus-visible,
+.card:focus-visible,
+.legenda-item:focus-visible,
+.busca-campo:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+}
+
+/* ---------- 4. Busca ---------- */
+
+.faixa-busca { padding: 14px 40px 0; }
+.modo-mobile .faixa-busca { padding: 12px 12px 0; }
+
+/* position:relative ancora a lista de resultados; z-index acima dos cards (que têm transform). */
+.busca {
+  position: relative;
+  z-index: 5;
+  max-width: 520px;
+}
+
+.busca-rotulo {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--tinta-suave);
+}
+
+.busca-campo {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--campo-borda);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--tinta);
+  font: 400 0.9375rem var(--fonte-texto);
+}
+
+/* O texto de exemplo padrão do navegador é cinza claro e reprova no contraste;
+   `opacity: 1` evita que o Firefox o clareie ainda mais. */
+.busca-campo::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+/* Alvo de toque de 44px e fonte de 16px (abaixo disso o iOS dá zoom ao focar o campo). */
+.modo-mobile .busca-campo {
+  min-height: 44px;
+  font-size: 16px;
+}
+
+.busca-lista {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  max-height: min(60vh, 420px);
+  margin: 4px 0 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--campo-borda);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(26, 31, 54, 0.12), 0 12px 24px rgba(26, 31, 54, 0.14);
+  animation: busca-entrada 0.12s ease-out;
+}
+
+/* Reforça o atributo hidden: sem isso, um display definido em outra regra o ignoraria. */
+.busca-lista[hidden] { display: none; }
+
+.busca-opcao {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.busca-opcao:hover,
+.busca-opcao.ativa { background: var(--hover); }
+
+/* Contorno além da cor: a opção ativa é identificável sem depender de percepção de cor. */
+.busca-opcao.ativa { outline: 2px solid var(--acento); outline-offset: -2px; }
+
+.busca-opcao-nome { font-size: 0.875rem; font-weight: 700; }
+.busca-opcao-tipo { font-size: 0.75rem; color: var(--tinta-suave); }
+
+.busca-vazio {
+  padding: 10px;
+  font-size: 0.875rem;
+  color: var(--tinta-suave);
+}
+
+@keyframes busca-entrada {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- 5. Legenda ---------- */
+
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  color: var(--tinta-suave);
+}
+
+/* Cada item é um <button> (gerado em organograma-core.js): clicar leva ao primeiro card do tipo. */
+.legenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.legenda-item:hover { background: var(--hover); }
+.modo-mobile .legenda-item { min-height: 32px; }
+
+/* Miniatura do card; reaproveita as regras .card-<tipo> da seção 7 (só as cores).
+   Como a miniatura não tem a classe `.card`, repete aqui o preenchimento e o
+   contorno base; as cores de cada tipo (seção 7) vêm depois e prevalecem. */
+.amostra {
+  display: inline-block;
+  width: 26px;
+  height: 16px;
+  background: var(--fundo);
+  border: 2px solid var(--borda);
+  border-radius: 4px;
+  /* A miniatura não deve ter a sombra do card real. */
+  box-shadow: none !important;
+}
+
+/* ---------- 6. Diagrama: palco, conectores e cards ---------- */
+
+.area-organograma { width: 100%; }
+
+/* O palco é o sistema de coordenadas: cards e SVG são posicionados dentro dele.
+   `overflow-anchor: none` desliga o ajuste automático de rolagem do navegador,
+   pois o núcleo já mantém o card clicado parado (ver `ancora` em reorganizar). */
+#organograma {
+  position: relative;
+  width: 100%;
+  overflow-anchor: none;
+}
+
+/* O SVG cobre o palco inteiro, fica atrás dos cards e não captura cliques. */
+.conectores {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.aresta {
+  fill: none;
+  stroke: var(--linha);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Cadeia de comando do card em foco/hover: mais grossa e em outra cor. */
+.aresta.destaque {
+  stroke: var(--destaque);
+  stroke-width: 2.5;
+}
+
+/* Cards são position:absolute; o núcleo os move com `transform` (animação na GPU).
+   As cores vêm de variáveis locais (--fundo, --texto, --borda, --chip-*) definidas
+   por tipo na seção 7: assim o resto do CSS não precisa saber qual é o tipo. */
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: var(--card-pad);
+  background: var(--fundo);
+  color: var(--texto);
+  /* Formato ÚNICO de todos os tipos: mesma borda, mesmos cantos, mesma fonte. */
+  border: 2px solid var(--borda);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(26, 31, 54, 0.14), 0 2px 6px rgba(26, 31, 54, 0.08);
+  font: 500 var(--card-fs)/1.3 var(--fonte-texto);
+  /* Renderização de texto mais nítida e uniforme entre navegadores. */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Nomes longos sem espaços (siglas, hífens) quebram em vez de vazar do card. */
+  overflow-wrap: anywhere;
+  /* Cliques repetidos para expandir não devem selecionar texto. */
+  user-select: none;
+  /* Remove o clarão cinza do toque no iOS/Android; o feedback é o próprio card. */
+  -webkit-tap-highlight-color: transparent;
+  /* Ao rolar até o card (scrollIntoView), deixa folga para a barra fixa não cobri-lo. */
+  scroll-margin-top: calc(var(--barra-altura) + 16px);
+  scroll-margin-bottom: 24px;
+  transition: box-shadow 0.15s ease;
+}
+
+/* Camada de GPU SÓ durante a animação (classe posta pelo núcleo): em repouso o texto
+   é desenhado direto na tela, sem reamostragem, e fica nítido. */
+.animando .card { will-change: transform; }
+
+.card.expansivel,
+.card.atalho { cursor: pointer; }
+
+.card.expansivel:hover,
+.card.atalho:hover { box-shadow: 0 2px 4px rgba(26, 31, 54, 0.18), 0 6px 14px rgba(26, 31, 54, 0.14); }
+
+/* Cards na cadeia de comando do card em foco: anel terracota (mesma cor dos conectores
+   destacados). O filete interno da cor do papel separa o anel do card; sem ele, o anel
+   quase some nos cards de Diretoria, que têm tom parecido. */
+.card.ancestral { box-shadow: 0 0 0 2px var(--papel), 0 0 0 4px var(--destaque); }
+
+/* Card em animação de saída: ignora cliques até ser removido do DOM. */
+.card.saindo { pointer-events: none; }
+
+/* Pulso exibido ao chegar num card pela busca, legenda ou atalho (cor = --destaque). */
+.card.pulso { animation: pulso 1.1s ease-out 1; }
+
+@keyframes pulso {
+  from { box-shadow: 0 0 0 0 rgba(176, 67, 12, 0.75); }
+  to { box-shadow: 0 0 0 16px rgba(176, 67, 12, 0); }
+}
+
+.card-nome { font-weight: 700; }
+
+/* Tipo escrito no card: cor sólida (sem `opacity`), para o contraste ser exatamente o medido. */
+.card-tipo {
+  font-size: 0.85em;
+  font-weight: 400;
+}
+
+/* "Selo" da sigla: fundo e texto próprios de cada tipo, com contraste >= 4,5:1. */
+.card-sigla {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--chip-fundo);
+  color: var(--chip-texto);
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* Indicador de expansão: seta + quantidade de filhos diretos. Fica no pé do card. */
+.card-acao {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 6px;
+  font-size: 0.88em;
+  font-weight: 700;
+}
+
+.card-atalho { font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+
+/* Seta desenhada com bordas (sem imagem): herda a cor do texto via currentColor. */
+.seta {
+  width: 7px;
+  height: 7px;
+  margin-top: -3px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+/* Aberto: a seta aponta para cima (estado também exposto via aria-expanded). */
+.card[aria-expanded="true"] .seta {
+  margin-top: 3px;
+  transform: rotate(-135deg);
+}
+
+/* ---------- 7. Tipos de card (SÓ cores) ---------- */
+/*
+ * Todos os tipos têm o mesmo formato (seção 6). Cada regra define apenas as 5 CORES:
+ *   --fundo      preenchimento do card
+ *   --texto      cor do texto (contraste >= 4,5:1 com --fundo)
+ *   --borda      contorno (contraste >= 3:1 com o papel)
+ *   --chip-fundo / --chip-texto   selo da sigla (contraste >= 4,5:1)
+ * O teste tests/cores_test.py lê estas regras: mantenha o formato `.card-<tipo> { --fundo: ...; }`.
+ *
+ * HIERARQUIA (do mais para o menos importante), só por luminosidade e preenchimento:
+ *   nível 1  instituição        escuríssimo
+ *   nível 2  órgão              escuro
+ *   nível 3  gabinete/diretoria preenchido médio
+ *   níveis 4 a 6                fundo claro com borda de cor forte (mais saturado que antes,
+ *                               já que a cor é agora a única diferença visual)
+ */
+
+/* -- Níveis 1 a 3: preenchidos, texto branco, luminosidade crescente (L* 12, 31, 42, 48) -- */
+.card-instituicao { --fundo: #0e1a4f; --texto: #ffffff; --borda: #0e1a4f; --chip-fundo: #ffffff; --chip-texto: #0e1a4f; }
+.card-orgao       { --fundo: #3b3aa8; --texto: #ffffff; --borda: #3b3aa8; --chip-fundo: #ffffff; --chip-texto: #3b3aa8; }
+.card-gabinete    { --fundo: #006e76; --texto: #ffffff; --borda: #006e76; --chip-fundo: #ffffff; --chip-texto: #006e76; }
+.card-diretoria   { --fundo: #c24e12; --texto: #ffffff; --borda: #c24e12; --chip-fundo: #ffffff; --chip-texto: #c24e12; }
+
+/* -- Níveis 4 a 6: fundo claro (L* >= 90), texto escuro, cor forte na borda -- */
+.card-coordenadoria { --fundo: #e8eefd; --texto: #1a1f36; --borda: #2a53dc; --chip-fundo: #2a53dc; --chip-texto: #ffffff; }
+.card-gerencia      { --fundo: #e3f5ec; --texto: #1a1f36; --borda: #007e52; --chip-fundo: #007e52; --chip-texto: #ffffff; }
+.card-chefia        { --fundo: #fff4d1; --texto: #1a1f36; --borda: #a07800; --chip-fundo: #7a5a00; --chip-texto: #ffffff; }
+.card-assessoria    { --fundo: #fde9ed; --texto: #1a1f36; --borda: #d84864; --chip-fundo: #b0304d; --chip-texto: #ffffff; }
+.card-comissao      { --fundo: #f4e8f4; --texto: #1a1f36; --borda: #7d247c; --chip-fundo: #7d247c; --chip-texto: #ffffff; }
+.card-ouvidoria     { --fundo: #e4f0fe; --texto: #1a1f36; --borda: #3886ea; --chip-fundo: #1d5fc0; --chip-texto: #ffffff; }
+.card-unidade       { --fundo: #eceff4; --texto: #1a1f36; --borda: #6b7388; --chip-fundo: #565e78; --chip-texto: #ffffff; }
+.card-cargo         { --fundo: #ffffff; --texto: #1a1f36; --borda: #2b3042; --chip-fundo: #2b3042; --chip-texto: #ffffff; }
+
+/* Preferência do sistema por menos movimento: desliga TODAS as animações decorativas
+   (entrada da busca, pulso, giro da seta). A animação de expandir/recolher é
+   desligada separadamente em JavaScript (ver `menosMovimento` no núcleo). */
+@media (prefers-reduced-motion: reduce) {
+  .card, .seta { transition: none; }
+  .busca-lista { animation: none; }
+  .card.pulso { animation: none; outline: 3px solid var(--foco); }
+}
+
+/* Modo de alto contraste do sistema (ex.: Windows): o navegador troca as cores por
+   cores do sistema e descarta fundos. Garante que contorno e conectores continuem
+   visíveis; o formato dos cards é o mesmo em qualquer modo. */
+@media (forced-colors: active) {
+  .card { border-color: CanvasText; }
+  .aresta { stroke: CanvasText; }
+  .aresta.destaque { stroke: Highlight; }
+  .card-sigla { border: 1px solid CanvasText; }
+}

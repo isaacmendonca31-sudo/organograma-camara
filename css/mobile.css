@@ -1,0 +1,37 @@
+/*
+ * Perfil visual mobile. Este arquivo complementa organograma.css e concentra
+ * somente ajustes para telas estreitas; a estrutura dos componentes continua
+ * compartilhada com desktop.
+ */
+:root {
+  --card-fs: 12.5px;
+  --card-pad: 9px 10px;
+  /* A barra rola junto com a página para liberar altura útil para o diagrama. */
+  --barra-altura: 0px;
+}
+
+/* Barra sem fixação: em telas pequenas, deixa mais área livre para o organograma. */
+.barra {
+  position: static;
+  padding: 8px 12px;
+  gap: 6px 12px;
+}
+
+.barra h1 { font-size: 1.15rem; }
+/* A instrução por escrito é redundante com o texto dos botões em telas pequenas. */
+.barra p { display: none; }
+.barra-acoes { width: 100%; gap: 6px; }
+
+/* 44px é um alvo confortável para toque; os botões dividem a largura disponível. */
+.botao {
+  flex: 1 1 auto;
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 0.8125rem;
+}
+
+/* Margens compactas para a legenda e o palco aproveitarem a largura do celular. */
+.faixa-legenda { padding: 12px 12px 4px; }
+.legenda { gap: 6px 14px; font-size: 0.75rem; }
+
+.area-organograma { padding: 16px 12px 64px; }

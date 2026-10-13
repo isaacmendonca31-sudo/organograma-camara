@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Organograma institucional</title>
+  <!--
+    Página desktop: monta a estrutura visual e carrega os módulos compartilhados.
+    O comportamento fica nos arquivos JavaScript; esta página define o conteúdo da
+    interface e escolhe o perfil desktop, sem duplicar dados ou algoritmo.
+  -->
+  <link rel="stylesheet" href="css/organograma.css">
+  <!-- O CSS específico vem depois do compartilhado para sobrescrever medidas-base. -->
+  <link rel="stylesheet" href="css/desktop.css">
+</head>
+<body class="modo-desktop">
+  <header class="barra">
+    <div>
+      <h1>Organograma institucional</h1>
+      <p>Clique em um card para ver ou ocultar as unidades subordinadas.</p>
+    </div>
+    <!-- Os botões são ligados às ações pelo atributo data-acao (ver organograma-core.js). -->
+    <div class="barra-acoes">
+      <button type="button" class="botao" data-acao="expandir-nivel">Expandir próximo nível</button>
+      <button type="button" class="botao" data-acao="expandir-tudo">Expandir tudo</button>
+      <button type="button" class="botao" data-acao="recolher-tudo">Recolher tudo</button>
+      <a class="botao botao-principal" href="organograma-mobile.html">Ver versão mobile</a>
+    </div>
+  </header>
+
+  <!-- Busca: o comportamento (combobox ARIA) é ligado por organograma-busca.js. -->
+  <div class="faixa-busca">
+    <div class="busca">
+      <label class="busca-rotulo" for="busca-campo">Buscar unidade</label>
+      <input id="busca-campo" class="busca-campo" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Nome, sigla ou tipo (ex.: financeira, CCJR)">
+      <ul id="busca-lista" class="busca-lista" aria-label="Resultados da busca" hidden></ul>
+    </div>
+  </div>
+
+  <!-- A lista é preenchida pelo núcleo com um botão por tipo existente nos dados. -->
+  <div class="faixa-legenda">
+    <ul class="legenda" id="legenda" aria-label="Legenda dos tipos de unidade. Clique para ir ao primeiro card do tipo"></ul>
+  </div>
+
+  <main class="area-organograma">
+    <div id="organograma"></div>
+    <noscript>Este organograma precisa de JavaScript para ser exibido.</noscript>
+  </main>
+
+  <!-- Região aria-live: leitores de tela falam o texto aqui sem mover o foco. -->
+  <p id="anuncio" class="so-leitor" role="status" aria-live="polite"></p>
+
+  <!--
+    Ordem importa porque cada script depende do anterior:
+    D3 e dados -> algoritmo de layout -> busca -> núcleo -> perfil desktop.
+    O perfil é carregado por último porque chama Organograma.montar().
+  -->
+  <script src="js/vendor/d3.min.js"></script>
+  <script src="js/dados-organograma.js"></script>
+  <script src="js/organograma-layout.js"></script>
+  <script src="js/organograma-busca.js"></script>
+  <script src="js/organograma-core.js"></script>
+  <script src="js/organograma-desktop.js"></script>
+</body>
+</html>

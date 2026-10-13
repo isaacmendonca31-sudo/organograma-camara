@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Organograma institucional</title>
+  <script>
+    /*
+     * Escolhe a versão pela LARGURA da janela (media query), não pelo User-Agent:
+     * o User-Agent não diz o tamanho real da tela (tablets, janelas redimensionadas,
+     * modo "desktop" do celular) e é facilmente falsificado/alterado pelos navegadores.
+     * O limite de 640px acompanha o ponto em que o perfil desktop passa a usar medidas compactas.
+     *
+     * location.replace (e não href): o index.html não entra no histórico, então o
+     * botão "Voltar" não devolve o usuário a uma página que o redireciona de novo.
+     */
+    (function () {
+      var ehCelular = window.matchMedia('(max-width: 640px)').matches;
+      window.location.replace(ehCelular ? 'organograma-mobile.html' : 'organograma-desktop.html');
+    }());
+  </script>
+</head>
+<body>
+  <!-- Sem JavaScript não há redirecionamento automático: oferece os links manuais. -->
+  <noscript>
+    <p>Escolha a versão do organograma:</p>
+    <ul>
+      <li><a href="organograma-desktop.html">Versão desktop</a></li>
+      <li><a href="organograma-mobile.html">Versão mobile</a></li>
+    </ul>
+  </noscript>
+</body>
+</html>

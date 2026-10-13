@@ -1,0 +1,20 @@
+/*
+ * Perfil visual desktop. Este arquivo complementa organograma.css; não repete
+ * estilos de cards ou componentes. Altere aqui apenas as medidas da página larga.
+ *
+ * As variáveis em :root são lidas pelos componentes compartilhados para que
+ * fontes e espaçamentos dos cards acompanhem o tamanho da tela.
+ */
+:root {
+  --card-fs: 13px;
+  --barra-altura: 68px;
+}
+
+/* Dá mais respiro à navegação fixa em telas largas. */
+.barra { padding: 10px 40px; }
+
+/* Alinha a legenda com as margens da barra e do diagrama. */
+.faixa-legenda { padding: 14px 40px 8px; }
+
+/* Espaço lateral para o diagrama e margem inferior para rolar até o fim. */
+.area-organograma { padding: 24px 40px 80px; }
