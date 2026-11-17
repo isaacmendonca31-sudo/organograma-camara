@@ -3,31 +3,61 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Organograma institucional</title>
-  <script>
-    /*
-     * Escolhe a versão pela LARGURA da janela (media query), não pelo User-Agent:
-     * o User-Agent não diz o tamanho real da tela (tablets, janelas redimensionadas,
-     * modo "desktop" do celular) e é facilmente falsificado/alterado pelos navegadores.
-     * O limite de 640px acompanha o ponto em que o perfil desktop passa a usar medidas compactas.
-     *
-     * location.replace (e não href): o index.html não entra no histórico, então o
-     * botão "Voltar" não devolve o usuário a uma página que o redireciona de novo.
-     */
-    (function () {
-      var ehCelular = window.matchMedia('(max-width: 640px)').matches;
-      window.location.replace(ehCelular ? 'organograma-mobile.html' : 'organograma-desktop.html');
-    }());
-  </script>
+  <title>Organograma interativo | Câmara Municipal de Goiânia</title>
+  <!--
+    PÁGINA DO ORGANOGRAMA (só a estrutura; o resto fica em css/ e js/).
+    ONDE EDITAR:
+      textos do topo e botões ... este arquivo
+      link do PDF ............... este arquivo (botão "Organograma em PDF")
+      cores e visual ............ css/organograma.css
+      unidades e siglas ......... js/dados-organograma.js
+      tamanhos por tela ......... js/organograma-perfil.js
+  -->
+  <link rel="stylesheet" href="css/organograma.css">
+  <script src="js/organograma-incorporado.js"></script>
 </head>
 <body>
-  <!-- Sem JavaScript não há redirecionamento automático: oferece os links manuais. -->
-  <noscript>
-    <p>Escolha a versão do organograma:</p>
-    <ul>
-      <li><a href="organograma-desktop.html">Versão desktop</a></li>
-      <li><a href="organograma-mobile.html">Versão mobile</a></li>
-    </ul>
-  </noscript>
+  <!-- Identificação no topo e retorno ao site. target="_top": dentro de um quadro, o link sai dele. -->
+  <header class="topo">
+    <div class="topo-conteudo">
+      <div>
+        <p class="topo-orgao">Câmara Municipal de Goiânia</p>
+        <h1>Organograma interativo</h1>
+      </div>
+      <a class="topo-voltar" href="https://www.goiania.go.leg.br/" target="_top">&larr; Voltar ao site</a>
+    </div>
+  </header>
+
+  <div class="barra">
+    <!-- Os botões são ligados às ações pelo atributo data-acao (ver organograma-core.js). -->
+    <div class="barra-acoes" role="group" aria-label="Ações do organograma">
+      <button type="button" class="botao botao-principal" data-acao="expandir-nivel">Expandir próximo nível</button>
+      <button type="button" class="botao" data-acao="expandir-tudo">Expandir tudo</button>
+      <button type="button" class="botao" data-acao="recolher-tudo">Recolher tudo</button>
+    </div>
+    <nav class="barra-links" aria-label="Documentos do organograma">
+      <a class="botao" href="https://www.goiania.go.leg.br/institucional/organograma/organograma/CMG_organograma.pdf" target="_blank" rel="noopener noreferrer">Organograma em PDF</a>
+    </nav>
+  </div>
+
+  <main class="area-organograma">
+    <p class="dica">Clique ou toque em um cartão para ver ou ocultar as unidades subordinadas.</p>
+    <div id="organograma"></div>
+    <noscript>Este organograma precisa de JavaScript para ser exibido. O documento completo está em PDF, no botão "Organograma em PDF".</noscript>
+  </main>
+
+  <!-- Região aria-live: leitores de tela falam o texto aqui sem mover o foco. -->
+  <p id="anuncio" class="so-leitor" role="status" aria-live="polite"></p>
+
+  <!--
+    Ordem importa porque cada script depende do anterior:
+    D3 e dados -> algoritmo de layout -> núcleo -> perfil.
+    O perfil é carregado por último porque chama Organograma.montar().
+  -->
+  <script src="js/vendor/d3.min.js"></script>
+  <script src="js/dados-organograma.js"></script>
+  <script src="js/organograma-layout.js"></script>
+  <script src="js/organograma-core.js"></script>
+  <script src="js/organograma-perfil.js"></script>
 </body>
 </html>

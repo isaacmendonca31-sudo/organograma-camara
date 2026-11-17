@@ -1,23 +1,18 @@
 /*
- * Algoritmo de posicionamento do organograma (puro: não usa DOM nem D3).
+ * CÁLCULO DAS POSIÇÕES DOS CARDS (não precisa editar para mudar visual ou dados)
  *
- * Por que "puro"? Porque assim ele roda em Node (tests/layout.test.js) e pode ser
- * verificado matematicamente - sem navegador - contra sobreposição de cards,
- * conectores que atravessam cards e estouro de largura. Qualquer mudança aqui
- * deve manter esses testes passando.
+ * Recebe os cards visíveis com seus tamanhos e devolve a posição de cada um e as linhas.
+ * Não usa DOM nem D3, por isso roda em Node e é testado por tests/layout.test.js.
  *
- * Entrada: a árvore VISÍVEL { id, w, h, children: [...] } com o tamanho real dos cards.
- * Opções:  maxWidth  largura máxima disponível (orçamento horizontal)
- *          gapX      espaço entre cards irmãos
- *          groupGap  espaço extra quando um dos irmãos tem filhos (separa grupos)
- *          gapY      espaço vertical entre níveis (e entre linhas de irmãos)
- *          gutter    corredor lateral reservado ao "tronco" quando os filhos quebram em linhas
+ * Opções (vindas de js/organograma-perfil.js):
+ *   maxWidth  largura máxima disponível
+ *   gapX      espaço entre cards irmãos
+ *   groupGap  espaço extra entre grupos
+ *   gapY      espaço vertical entre níveis
+ *   gutter    corredor lateral das linhas quando os filhos quebram em várias linhas
  *
- * Ideia central: cada nó ocupa uma "caixa" (card + subárvore). Os filhos são
- * colocados lado a lado enquanto couberem no orçamento; ao exceder, quebram em
- * várias linhas balanceadas. O resultado cresce para os lados até o limite da
- * largura e só então para baixo - sem scale() e sem rolagem horizontal.
- * Desktop e mobile usam o mesmo algoritmo, mudando apenas maxWidth e tamanhos.
+ * Ideia: os filhos ficam lado a lado enquanto couberem; depois quebram em linhas
+ * equilibradas. Cresce para os lados e só então para baixo.
  */
 (function (root, factory) {
   // Padrão UMD mínimo: no navegador publica `window.OrganogramaLayout`;

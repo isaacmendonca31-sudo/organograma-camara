@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Exemplo: organograma dentro da página do site | Câmara Municipal de Goiânia</title>
+  <!--
+    SIMULAÇÃO de como o organograma ficaria DENTRO de uma página do site, sem abrir
+    nova aba ou janela. O topo, o "caminho de pão" e o rodapé abaixo são apenas um
+    esqueleto genérico (não é o modelo real do site): no portal, o organograma ocupa a
+    área de conteúdo da página "Organograma interativo".
+
+    O que importa para a incorporação é o bloco marcado "COLE NO SITE" (um <iframe> e um
+    ouvinte de poucas linhas). Veja INCORPORACAO.md.
+  -->
+  <style>
+    :root { --azul: #242f62; --verde: #1a5529; --dourado: #ba8727; --dourado-claro: #dbad57; --papel: #fff; --tinta: #1a1f36; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--papel); color: var(--tinta); font: 400 1rem/1.5 Calibri, Carlito, "Segoe UI", system-ui, sans-serif; }
+    .aviso { margin: 0; padding: 6px 16px; background: #fff4d1; color: #4a3600; font-size: 0.8125rem; text-align: center; }
+    .site-topo { background: var(--azul); border-bottom: 4px solid var(--dourado-claro); color: #fff; }
+    .site-topo div { max-width: 1200px; margin: 0 auto; padding: 14px 16px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .site-menu { background: #f1f3f9; border-bottom: 1px solid #c8cfe3; }
+    .site-menu ul { display: flex; flex-wrap: wrap; gap: 4px 20px; max-width: 1200px; margin: 0 auto; padding: 10px 16px; list-style: none; font-size: 0.9375rem; }
+    .site-menu a { color: var(--azul); text-decoration: none; font-weight: 700; }
+    main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+    .caminho { margin: 0 0 8px; font-size: 0.875rem; color: #444b66; }
+    .caminho a { color: var(--azul); }
+    h1 { margin: 0 0 8px; color: var(--azul); font-size: 1.75rem; }
+    p.intro { margin: 0 0 16px; color: #444b66; }
+    /* O quadro ocupa a largura do conteúdo; a altura é ajustada pelo script abaixo. */
+    #organograma-cmg { display: block; width: 100%; max-width: 100%; min-width: 0; height: 640px; border: 0; background: #fff; }
+    footer { margin-top: 24px; padding: 16px; background: var(--azul); color: #e3e7f6; text-align: center; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <p class="aviso">Simulação para avaliação: esqueleto genérico de página do site com o organograma incorporado.</p>
+  <div class="site-topo"><div>Câmara Municipal de Goiânia</div></div>
+  <nav class="site-menu" aria-label="Menu do site de exemplo">
+    <ul>
+      <li><a href="#">Início</a></li>
+      <li><a href="#">Institucional</a></li>
+      <li><a href="#">Vereadores</a></li>
+      <li><a href="#">Transparência</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <p class="caminho"><a href="#">Início</a> &rsaquo; <a href="#">Institucional</a> &rsaquo; Organograma</p>
+    <h1>Organograma interativo</h1>
+    <p class="intro">Estrutura da Câmara Municipal de Goiânia. Clique nos cartões para navegar.</p>
+
+    <!-- ===== COLE NO SITE: início ===== -->
+    <iframe id="organograma-cmg"
+            src="index.html"
+            title="Organograma interativo da Câmara Municipal de Goiânia"
+            loading="lazy"></iframe>
+    <script>
+      // Ajusta a altura do quadro à do organograma (a página incorporada avisa a cada mudança).
+      window.addEventListener('message', function (evento) {
+        var quadro = document.getElementById('organograma-cmg');
+        if (!quadro || evento.source !== quadro.contentWindow) return;   // só aceita o próprio quadro
+        if (!evento.data || evento.data.tipo !== 'organograma-cmg:altura') return;
+        quadro.style.height = Math.ceil(evento.data.altura) + 'px';
+      });
+    </script>
+    <!-- ===== COLE NO SITE: fim ===== -->
+  </main>
+
+  <footer>Rodapé do site de exemplo</footer>
+</body>
+</html>
