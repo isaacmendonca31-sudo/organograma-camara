@@ -4,7 +4,7 @@
  * ONDE ESTÁ CADA COISA (procure pelos títulos "=====" neste arquivo):
  *   1. CORES E FONTES ........ paleta da CMG e fontes. EDITE AQUI para trocar cores
  *   2. BASE .................. página, textos de erro e leitor de tela
- *   3. TOPO E BARRA .......... faixa azul do topo, botões e links
+ *    3. TOPO E BARRA .......... faixa verde do topo, botões e legenda
  *   4. DIAGRAMA .............. área do organograma, linhas e forma dos cards
  *   5. CORES DOS CARDS ....... legislativo, administrativo e macrounidade. EDITE AQUI
  *   6. CELULAR E INCORPORADO . ajustes para telas pequenas e para uso dentro do site
@@ -34,13 +34,14 @@
   --cmg-dourado-contorno: #8f661c;
 
   /* Cores da página. */
-  --grafite: #3a3a3a;
+  --grafite: #34383f;
   --papel: #ffffff;                  /* fundo da página */
   --tinta: #1a1f36;                  /* texto principal */
   --tinta-suave: #444b66;            /* texto secundário */
   --divisor: #c8cfe3;                /* linha fina sob a barra */
   --limite-organograma: #737b8f;     /* contorno do diagrama incorporado */
   --linha: var(--grafite);           /* conectores entre os cards */
+  --linha-suave: #d7dae2;             /* conectores secundários durante o destaque */
   --destaque: var(--cmg-azul-claro); /* caminho até a raiz (mouse ou foco) */
   --acento: var(--cmg-azul);         /* botões e links */
   --acento-escuro: var(--cmg-verde); /* botão principal ao passar o mouse */
@@ -106,10 +107,10 @@ body {
    3. TOPO E BARRA
    =========================================================================== */
 
-/* Faixa azul com o nome da Câmara, o título e o "Voltar ao site".
+/* Faixa verde-escura com o nome da Câmara, o título e o "Voltar ao site".
    Some quando a página está dentro do site (seção 6). */
 .topo {
-  background: var(--cmg-azul);
+  background: #158028;
   border-bottom: 4px solid var(--cmg-dourado-claro);
   color: #fff;
 }
@@ -123,6 +124,20 @@ body {
   max-width: 1760px;
   margin: 0 auto;
   padding: 14px var(--margem);
+}
+
+.topo-identidade {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.topo-logo {
+  display: block;
+  width: auto;
+  height: 64px;
+  max-width: 190px;
+  object-fit: contain;
 }
 
 .topo-orgao {
@@ -172,11 +187,141 @@ body {
   border-bottom: 1px solid var(--divisor);
 }
 
-.barra-acoes,
-.barra-links {
+.barra-acoes {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.barra-esquerda {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.barra-busca {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 440px;
+}
+
+.busca-rotulo {
+  flex: 0 0 auto;
+  color: var(--tinta);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.busca-campo {
+  flex: 1 1 auto;
+  width: auto;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--tinta-suave);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--tinta);
+  font: 400 0.9375rem/1.2 var(--fonte-texto);
+}
+
+.busca-campo:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+}
+
+.busca-campo::placeholder {
+  color: var(--tinta-suave);
+  opacity: 1;
+}
+
+.busca-lista {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  max-height: 280px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--divisor);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(26, 31, 54, 0.18);
+}
+
+.busca-opcao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.busca-opcao.ativa,
+.busca-opcao:hover {
+  background: var(--hover);
+}
+
+.busca-opcao-nome {
+  font-weight: 700;
+}
+
+.busca-opcao-tipo,
+.busca-vazio {
+  color: var(--tinta-suave);
+  font-size: 0.8125rem;
+}
+
+.busca-vazio {
+  padding: 8px 10px;
+}
+
+.barra-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 12px;
+  color: var(--tinta-suave);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.legenda-titulo {
+  color: var(--tinta);
+}
+
+.legenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.legenda-cor {
+  width: 18px;
+  height: 18px;
+  border: 2px solid;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.legenda-legislativa {
+  border-color: var(--cmg-azul);
+  background: #e9eef9;
+}
+
+.legenda-administrativa {
+  border-color: var(--cmg-verde);
+  background: #e8f2e9;
 }
 
 /* Botões e links da barra (mesma aparência). */
@@ -188,16 +333,16 @@ body {
   padding: 0 16px;
   border: 1px solid var(--acento);
   border-radius: 8px;
-  background: transparent;
+  background: #fff;
   color: var(--acento);
   font: 700 0.9375rem/1 var(--fonte-texto);
   text-decoration: none;
   cursor: pointer;
 }
 
-.botao:hover { background: var(--hover); }
-.botao-principal { background: var(--acento); color: #fff; }
-.botao-principal:hover { background: var(--acento-escuro); border-color: var(--acento-escuro); }
+.botao:hover { background: #fff; }
+.botao-principal { background: #fff; color: var(--acento); }
+.botao-principal:hover { background: #fff; border-color: var(--acento-escuro); }
 
 /* Contorno do foco do teclado. */
 .botao:focus-visible,
@@ -241,12 +386,25 @@ body {
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: stroke 0.16s ease, stroke-width 0.16s ease;
 }
 
 /* Caminho até a raiz do card em foco. */
 .aresta.destaque {
   stroke: var(--destaque);
   stroke-width: 2.5;
+}
+
+/* Ao passar o mouse ou focar um card, as linhas secundárias ficam discretas
+   e o caminho até a raiz ganha destaque azul. */
+.conectores.estado-destaque .aresta {
+  stroke: var(--linha-suave);
+  stroke-width: 1.5;
+}
+
+.conectores.estado-destaque .aresta.destaque {
+  stroke: var(--destaque);
+  stroke-width: 3;
 }
 
 /* Forma dos cards (as cores ficam na seção 5). A posição é definida pelo JavaScript. */
@@ -381,11 +539,17 @@ body {
   }
 
   .topo-conteudo { padding-block: 10px; }
+  .topo-identidade { gap: 10px; }
+  .topo-logo { height: 48px; max-width: 140px; }
   .topo h1 { font-size: 1.3rem; }
   .topo-voltar { min-height: 44px; }
 
   .barra { position: static; padding-block: 8px; gap: 6px 12px; }
-  .barra-acoes, .barra-links { width: 100%; gap: 6px; }
+  .barra-acoes { width: 100%; gap: 6px; }
+  .barra-esquerda { width: 100%; }
+  .barra-busca { width: 100%; }
+  .busca-campo { width: 100%; }
+  .barra-legenda { width: 100%; justify-content: flex-end; }
   .card { scroll-margin-top: 16px; }
 
   .botao {
@@ -400,7 +564,7 @@ body {
 
 /* Modo incorporado: a página está dentro de um <iframe> do site
    (ligado por js/organograma-incorporado.js). O site já tem topo e menu,
-   então o topo azul some, a barra deixa de ser fixa e as margens diminuem. */
+   então o topo verde escuro some, a barra deixa de ser fixa e as margens diminuem. */
 .incorporado { --margem: 12px; }
 .incorporado body { min-height: 0; }
 .incorporado .topo {

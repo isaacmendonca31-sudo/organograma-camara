@@ -8,7 +8,7 @@
     PÁGINA DO ORGANOGRAMA (só a estrutura; o resto fica em css/ e js/).
     ONDE EDITAR:
       textos do topo e botões ... este arquivo
-      link do PDF ............... este arquivo (botão "Organograma em PDF")
+      legenda do organograma ..... este arquivo
       cores e visual ............ css/organograma.css
       unidades e siglas ......... js/dados-organograma.js
       tamanhos por tela ......... js/organograma-perfil.js
@@ -20,9 +20,12 @@
   <!-- Identificação no topo e retorno ao site. target="_top": dentro de um quadro, o link sai dele. -->
   <header class="topo">
     <div class="topo-conteudo">
-      <div>
-        <p class="topo-orgao">Câmara Municipal de Goiânia</p>
-        <h1>Organograma interativo</h1>
+      <div class="topo-identidade">
+        <img class="topo-logo" src="assets/brasao-camara.png" alt="">
+        <div>
+          <p class="topo-orgao">Câmara Municipal de Goiânia</p>
+          <h1>Organograma interativo</h1>
+        </div>
       </div>
       <a class="topo-voltar" href="https://www.goiania.go.leg.br/" target="_top">&larr; Voltar ao site</a>
     </div>
@@ -30,20 +33,29 @@
 
   <div class="barra">
     <!-- Os botões são ligados às ações pelo atributo data-acao (ver organograma-core.js). -->
-    <div class="barra-acoes" role="group" aria-label="Ações do organograma">
-      <button type="button" class="botao botao-principal" data-acao="expandir-nivel">Expandir próximo nível</button>
-      <button type="button" class="botao" data-acao="expandir-tudo">Expandir tudo</button>
-      <button type="button" class="botao" data-acao="recolher-tudo">Recolher tudo</button>
+    <div class="barra-esquerda">
+      <div class="barra-acoes" role="group" aria-label="Ações do organograma">
+        <button type="button" class="botao botao-principal" data-acao="expandir-nivel">Expandir próximo nível</button>
+        <button type="button" class="botao" data-acao="expandir-tudo">Expandir tudo</button>
+        <button type="button" class="botao" data-acao="recolher-tudo">Recolher tudo</button>
+      </div>
+      <div class="barra-busca">
+        <label class="busca-rotulo" for="busca-campo">Buscar unidade</label>
+        <input id="busca-campo" class="busca-campo" type="search" placeholder="Nome, sigla ou tipo" autocomplete="off" aria-haspopup="listbox">
+        <ul id="busca-lista" class="busca-lista" hidden></ul>
+      </div>
     </div>
-    <nav class="barra-links" aria-label="Documentos do organograma">
-      <a class="botao" href="https://www.goiania.go.leg.br/institucional/organograma/organograma/CMG_organograma.pdf" target="_blank" rel="noopener noreferrer">Organograma em PDF</a>
-    </nav>
+    <div class="barra-legenda" role="group" aria-label="Legenda das dimensões">
+      <span class="legenda-titulo">Legenda:</span>
+      <span class="legenda-item"><span class="legenda-cor legenda-legislativa" aria-hidden="true"></span>Legislativa</span>
+      <span class="legenda-item"><span class="legenda-cor legenda-administrativa" aria-hidden="true"></span>Administrativa</span>
+    </div>
   </div>
 
   <main class="area-organograma">
     <p class="dica">Clique ou toque em um cartão para ver ou ocultar as unidades subordinadas.</p>
     <div id="organograma"></div>
-    <noscript>Este organograma precisa de JavaScript para ser exibido. O documento completo está em PDF, no botão "Organograma em PDF".</noscript>
+    <noscript>Este organograma precisa de JavaScript para ser exibido.</noscript>
   </main>
 
   <!-- Região aria-live: leitores de tela falam o texto aqui sem mover o foco. -->
@@ -57,6 +69,7 @@
   <script src="js/vendor/d3.min.js"></script>
   <script src="js/dados-organograma.js"></script>
   <script src="js/organograma-layout.js"></script>
+  <script src="js/organograma-busca.js"></script>
   <script src="js/organograma-core.js"></script>
   <script src="js/organograma-perfil.js"></script>
 </body>

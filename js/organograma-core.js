@@ -589,6 +589,7 @@
     /** Realça o caminho do card até a raiz ao passar o mouse ou focar. `null` limpa. */
     function destacar(id) {
       const cadeia = id ? new Set(porId.get(id).ancestors().map((a) => a.data.id)) : null;
+      svg.classed('estado-destaque', Boolean(cadeia));
       svg.selectAll('path.aresta')
         .classed('destaque', (n) => Boolean(cadeia && cadeia.has(n.data.id)))
         .filter('.destaque').raise();
@@ -657,6 +658,35 @@
       const acao = acoesDaBarra[botao.dataset.acao];
       if (acao) botao.addEventListener('click', acao);
     });
+
+    /** Abre os ancestrais, seleciona o card e o posiciona em foco. */
+    function irParaBusca(id) {
+      const no = porId.get(id);
+      if (!no) return;
+      no.ancestors().forEach((ancestral) => {
+        if (temFilhos(ancestral)) expandidos.add(ancestral.data.id);
+      });
+      if (perfilAtual && perfilAtual.acordeaoRaizes) {
+        const ramo = no.parent && no.parent !== hierarquia ? no.ancestors().find((n) => n.parent === hierarquia) : no;
+        if (ramo) aplicarAcordeao(ramo);
+      }
+      salvarEstado();
+      reorganizar({ ancora: id });
+      global.requestAnimationFrame(() => {
+        definirFoco(id, true);
+        const elemento = elementos.get(id);
+        if (elemento) elemento.scrollIntoView({ behavior: menosMovimento.matches ? 'auto' : 'smooth', block: 'center' });
+      });
+      anunciar(`${no.data.nome} selecionado`);
+    }
+
+    if (global.OrganogramaBusca) {
+      global.OrganogramaBusca.montar({
+        porId,
+        irPara: irParaBusca,
+        anunciar
+      });
+    }
 
     // ===========================================================================
     // 5. REDIMENSIONAR

@@ -6,7 +6,7 @@
  * Liga sozinho dentro de um <iframe>. Para testar fora dele, use ?incorporado na URL;
  * ?incorporado=0 desliga.
  *
- * O que muda: o topo azul e o "Voltar ao site" ficam escondidos (o site já tem os seus)
+ * O que muda: o topo verde escuro e o "Voltar ao site" ficam escondidos (o site já tem os seus)
  * e a barra deixa de ser fixa. As regras estão na seção 6 de css/organograma.css.
  *
  * Altura: o <iframe> não cresce sozinho, então esta página avisa o site da sua altura:
